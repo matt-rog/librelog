@@ -16,10 +16,10 @@ services:
       timeout: 10s
 
   cassandra-integrity:
-    image: cassandra:latest # Use Cassandra image here (for cqlsh tool)
+    image: cassandra:latest
     depends_on:
       cassandra:
-        condition: service_healthy # Wait for Cassandra to be healthy
+        condition: service_healthy
     command: >
       bash -c "
         until cqlsh librelog-cassandra -e 'DESC KEYSPACES'; do
@@ -29,10 +29,10 @@ services:
         cqlsh librelog-cassandra -f /docker-entrypoint-initdb.d/init.cql;
       "
     volumes:
-      - ./cassandra/init.cql:/docker-entrypoint-initdb.d/init.cql # Mount init script
+      - ./cassandra/init.cql:/docker-entrypoint-initdb.d/init.cql
     networks:
       - librelog-net
-    restart: "no" # Prevents restart after initialization
+    restart: "no"
 
 volumes:
   cassandra-data:
