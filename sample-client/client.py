@@ -15,8 +15,6 @@ async def ws_client():
         while True:
             time.sleep(1)
             await ws.send(str(psutil.virtual_memory().percent))
-            # msg = await ws.recv()
-            # print(msg)
 
 
 # Start the connection
