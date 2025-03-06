@@ -1,0 +1,41 @@
+services:
+  cassandra:
+    build: cassandra
+    container_name: librelog-cassandra
+    ports:
+      - "9042:9042"
+    volumes:
+      - cassandra-data:/var/lib/cassandra
+    networks:
+      - librelog-net
+    healthcheck:
+      test: ["CMD", "cqlsh", "-e", "SELECT now() FROM system.local"]
+      interval: 30s
+      retries: 3
+      start_period: 10s
+      timeout: 10s
+
+  cassandra-integrity:
+    image: cassandra:latest # Use Cassandra image here (for cqlsh tool)
+    depends_on:
+      cassandra:
+        condition: service_healthy # Wait for Cassandra to be healthy
+    command: >
+      bash -c "
+        until cqlsh librelog-cassandra -e 'DESC KEYSPACES'; do
+          echo 'Waiting for Cassandra...';
+          sleep 5;
+        done;
+        cqlsh librelog-cassandra -f /docker-entrypoint-initdb.d/init.cql;
+      "
+    volumes:
+      - ./cassandra/init.cql:/docker-entrypoint-initdb.d/init.cql # Mount init script
+    networks:
+      - librelog-net
+    restart: "no" # Prevents restart after initialization
+
+volumes:
+  cassandra-data:
+
+networks:
+  librelog-net:
