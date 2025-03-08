@@ -4,7 +4,7 @@ CREATE KEYSPACE IF NOT EXISTS librelog WITH replication =
 USE librelog;
 
 CREATE TABLE IF NOT EXISTS logs (
-    user_id UUID,
+    user_id TEXT,
     log_set TEXT,
     timestamp TIMESTAMP,
     data TEXT,
