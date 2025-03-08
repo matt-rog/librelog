@@ -2,6 +2,7 @@ import websockets
 import asyncio
 import psutil
 import time
+import json
 
 
 async def ws_client():
@@ -14,7 +15,14 @@ async def ws_client():
         # Send memory usage every second
         while True:
             time.sleep(1)
-            await ws.send(str(psutil.virtual_memory().percent))
+            data = json.dumps(
+                {
+                    "user_id": "fba64ae9-154f-42bb-b040-cf15a3f53ea5",
+                    "log_set": "ram",
+                    "data": {"perc": psutil.virtual_memory().percent},
+                }
+            )
+            await ws.send(data)
 
 
 # Start the connection
