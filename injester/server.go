@@ -49,7 +49,7 @@ func injest(w http.ResponseWriter, r *http.Request) {
 
 		currentTime := time.Now().UnixMilli()
 
-		err = session.Query(`INSERT INTO logs (user_id, log_set, timestamp, data) VALUES (?,?,?,?)`, lo.UserID, lo.LogSet, currentTime, lo.Data).Exec();
+		err = session.Query(`INSERT INTO logs (user_id, log_id, recv_time, data) VALUES (?,?,?,?)`, lo.UserID, lo.LogSet, currentTime, lo.Data).Exec();
 		if err != nil {
         	log.Println("insert error:", err)
 			c.WriteMessage(mt, []byte("insert error"))
