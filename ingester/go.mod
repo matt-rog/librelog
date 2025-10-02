@@ -1,4 +1,4 @@
-module injester
+module ingester
 
 go 1.24.0
 

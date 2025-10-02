@@ -6,7 +6,7 @@ import json
 
 
 async def ws_client():
-    url = "ws://127.0.0.1:9000/injest"
+    url = "ws://127.0.0.1:9000/ingest"
 
     # Connect to the server
     async with websockets.connect(url) as ws:

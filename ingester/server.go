@@ -25,7 +25,7 @@ var upgrader = websocket.Upgrader{}
 
 var session *gocql.Session
 
-func injest(w http.ResponseWriter, r *http.Request) {
+func ingest(w http.ResponseWriter, r *http.Request) {
 	c, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Print("upgrade:", err)
@@ -82,6 +82,6 @@ func main() {
 
 	flag.Parse()
 	log.SetFlags(0)
-	http.HandleFunc("/injest", injest)
+	http.HandleFunc("/ingest", ingest)
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
