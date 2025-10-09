@@ -34,6 +34,19 @@ services:
       - librelog-net
     restart: "no"
 
+  web:
+    build: web
+    container_name: librelog-web
+    ports:
+      - "8080:8080"
+    environment:
+      - CASSANDRA_CLUSTER=librelog-cassandra
+    depends_on:
+      cassandra:
+        condition: service_healthy
+    networks:
+      - librelog-net
+
 volumes:
   cassandra-data:
 
