@@ -34,6 +34,19 @@ services:
       - librelog-net
     restart: "no"
 
+  ingester:
+    build: ingester
+    container_name: librelog-ingester
+    ports:
+      - "9000:9000"
+    environment:
+      - CASSANDRA_CLUSTER=librelog-cassandra
+    depends_on:
+      cassandra-integrity:
+        condition: service_completed_successfully
+    networks:
+      - librelog-net
+
   web:
     build: web
     container_name: librelog-web
@@ -42,8 +55,8 @@ services:
     environment:
       - CASSANDRA_CLUSTER=librelog-cassandra
     depends_on:
-      cassandra:
-        condition: service_healthy
+      cassandra-integrity:
+        condition: service_completed_successfully
     networks:
       - librelog-net
 
