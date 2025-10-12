@@ -6,7 +6,8 @@ import { api } from './api.js'
 const dark = ref(false)
 
 onMounted(() => {
-  dark.value = localStorage.getItem('librelog_dark') === '1'
+  const saved = localStorage.getItem('librelog_dark')
+  dark.value = saved !== null ? saved === '1' : window.matchMedia('(prefers-color-scheme: dark)').matches
   applyTheme()
 })
 
