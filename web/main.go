@@ -2,7 +2,9 @@
 package main
 
 import (
+	"embed"
 	"encoding/json"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
@@ -10,6 +12,9 @@ import (
 
 	"github.com/gocql/gocql"
 )
+
+//go:embed frontend/dist/*
+var frontendFS embed.FS
 
 var session *gocql.Session
 
@@ -49,6 +54,21 @@ func main() {
 	mux.HandleFunc("DELETE /api/datasets/{id}", requireAuth(handleDeleteDataset))
 
 	mux.HandleFunc("GET /api/datasets/{id}/logs", requireAuth(handleQueryLogs))
+
+	dist, _ := fs.Sub(frontendFS, "frontend/dist")
+	fileServer := http.FileServer(http.FS(dist))
+	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		path := r.URL.Path
+		if path != "/" {
+			if f, err := dist.Open(strings.TrimPrefix(path, "/")); err == nil {
+				f.Close()
+				fileServer.ServeHTTP(w, r)
+				return
+			}
+		}
+		r.URL.Path = "/"
+		fileServer.ServeHTTP(w, r)
+	})
 
 	log.Println("web api listening on :8080")
 	log.Fatal(http.ListenAndServe(":8080", mux))
