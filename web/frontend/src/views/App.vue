@@ -6,6 +6,7 @@ import { api } from '../api.js'
 
 const router = useRouter()
 
+const view = ref('logsets')
 const logsets = ref([])
 const selected = ref(null)
 const logs = ref([])
@@ -18,6 +19,11 @@ const error = ref('')
 const logsLoading = ref(false)
 const lastFetchCount = ref(0)
 const LIMIT = 100
+
+const apiKeys = ref([])
+const showNewKey = ref(false)
+const newKeyName = ref('')
+const createdKey = ref(null)
 
 const columns = computed(() => {
   const keys = new Set()
@@ -116,6 +122,39 @@ function parseData(entry) {
 function formatTime(t) {
   return new Date(t).toLocaleString()
 }
+
+function showKeys() {
+  view.value = 'keys'
+  selected.value = null
+  loadKeys()
+}
+
+async function loadKeys() {
+  apiKeys.value = await api.get('/api/tokens')
+}
+
+async function createKey() {
+  error.value = ''
+  try {
+    const data = await api.post('/api/tokens', { name: newKeyName.value })
+    createdKey.value = data
+    newKeyName.value = ''
+    showNewKey.value = false
+    await loadKeys()
+  } catch (e) {
+    error.value = e.message
+  }
+}
+
+async function revokeKey(hash) {
+  if (!confirm('Revoke this key?')) return
+  await api.del(`/api/tokens/${hash}`)
+  await loadKeys()
+}
+
+function copyToken(token) {
+  navigator.clipboard.writeText(token)
+}
 </script>
 
 <template>
@@ -131,8 +170,8 @@ function formatTime(t) {
           v-for="ls in logsets"
           :key="ls.log_id"
           class="logset-item"
-          :class="{ active: selected?.log_id === ls.log_id }"
-          @click="selected = ls"
+          :class="{ active: view === 'logsets' && selected?.log_id === ls.log_id }"
+          @click="view = 'logsets'; selected = ls"
         >
           {{ ls.name }}
         </button>
@@ -147,10 +186,63 @@ function formatTime(t) {
         </div>
       </div>
       <button v-else class="new-logset" @click="showNewForm = true">+ new logset</button>
+
+      <div class="sidebar-footer">
+        <button class="nav-item" :class="{ active: view === 'keys' }" @click="showKeys">api keys</button>
+      </div>
     </aside>
 
     <main class="content">
-      <div v-if="!selected" class="empty-state">
+      <div v-if="view === 'keys'" class="keys-panel">
+        <h2>API Keys</h2>
+        <p class="desc">Keys for external apps and scripts. Each key works like a login token.</p>
+
+        <div v-if="createdKey" class="key-created">
+          <p>Key created. Copy it now, you won't see it again.</p>
+          <div class="key-display">
+            <code>{{ createdKey.token }}</code>
+            <button @click="copyToken(createdKey.token)">copy</button>
+          </div>
+          <button @click="createdKey = null">done</button>
+        </div>
+
+        <div class="key-actions">
+          <div v-if="showNewKey" class="new-form">
+            <input v-model="newKeyName" placeholder="Key name (e.g. vscode-laptop)" @keyup.enter="createKey" />
+            <p v-if="error" class="error">{{ error }}</p>
+            <div class="new-form-actions">
+              <button class="cta" @click="createKey">Create</button>
+              <button @click="showNewKey = false">Cancel</button>
+            </div>
+          </div>
+          <button v-else class="new-logset" @click="showNewKey = true">+ new key</button>
+        </div>
+
+        <table v-if="apiKeys.length > 0" class="keys-table">
+          <thead>
+            <tr>
+              <th>name</th>
+              <th>prefix</th>
+              <th>created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="key in apiKeys" :key="key.token_hash">
+              <td>{{ key.name }}</td>
+              <td><code>{{ key.prefix }}...</code></td>
+              <td class="time-cell">{{ formatTime(key.created_at) }}</td>
+              <td><button class="quiet" @click="revokeKey(key.token_hash)">revoke</button></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div v-else class="empty-state">
+          <p>No API keys yet.</p>
+        </div>
+      </div>
+
+      <div v-else-if="!selected" class="empty-state">
         <p>Select a logset to view its data, or create a new one.</p>
       </div>
 
@@ -384,5 +476,68 @@ function formatTime(t) {
 }
 .load-more button:hover {
   color: var(--accent);
+}
+
+.sidebar-footer {
+  margin-top: 0.5rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+.nav-item {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-radius: 3px;
+  color: var(--muted);
+  font-size: 0.85rem;
+  width: 100%;
+}
+.nav-item:hover {
+  color: var(--accent);
+}
+.nav-item.active {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+.keys-panel h2 {
+  font-weight: normal;
+  font-size: 1.5rem;
+  margin-bottom: 0.25rem;
+}
+.keys-panel > .desc {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+.key-actions {
+  margin-bottom: 1.5rem;
+}
+.key-created {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 3px;
+  margin-bottom: 1.5rem;
+}
+.key-created p {
+  color: var(--error);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+.key-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+.key-display code {
+  font-size: 0.8rem;
+  font-family: 'Courier New', monospace;
+  word-break: break-all;
+  flex: 1;
+}
+.keys-table code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 </style>
