@@ -1,0 +1,121 @@
+/* AI-assisted code */
+:root {
+  --bg: #f5efe8;
+  --text: #2c2420;
+  --accent: #8b6f47;
+  --accent-hover: #73593a;
+  --surface: #ebe4d9;
+  --border: #d4c9b8;
+  --error: #c44;
+  --muted: #8a7e72;
+  --shadow: rgba(44, 36, 32, 0.08);
+}
+
+html.dark {
+  --bg: #1a1612;
+  --text: #e8e0d6;
+  --accent: #c49a6c;
+  --accent-hover: #d4aa7c;
+  --surface: #2a2320;
+  --border: #4a3f36;
+  --error: #e66;
+  --muted: #9a8e82;
+  --shadow: rgba(0, 0, 0, 0.3);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+}
+
+h1, h2, h3 {
+  font-family: 'Young Serif', serif;
+  font-weight: normal;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  color: var(--accent);
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9rem;
+  font-family: inherit;
+  letter-spacing: 0.02em;
+  transition: all 0.15s ease;
+}
+button:hover {
+  color: var(--accent-hover);
+}
+button.cta {
+  background: var(--accent);
+  color: var(--bg);
+  border-radius: 2px;
+  padding: 0.65rem 1.75rem;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+button.cta:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 3px 12px var(--shadow);
+  transform: translateY(-1px);
+}
+button.quiet {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+button.quiet:hover {
+  color: var(--error);
+}
+
+input {
+  background: transparent;
+  color: var(--text);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 0.5rem 0;
+  font-size: 0.95rem;
+  font-family: inherit;
+  width: 100%;
+  transition: border-color 0.15s ease;
+}
+input:focus {
+  outline: none;
+  border-bottom-color: var(--accent);
+}
+input::placeholder {
+  color: var(--muted);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+th {
+  font-weight: normal;
+  color: var(--muted);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
