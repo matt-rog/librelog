@@ -38,6 +38,17 @@ CREATE TABLE IF NOT EXISTS users_by_account (
 CREATE TABLE IF NOT EXISTS tokens (
     token_hash TEXT,
     user_id UUID,
+    name TEXT,
+    prefix TEXT,
     created_at TIMESTAMP,
     PRIMARY KEY (token_hash)
 ) WITH default_time_to_live = 2592000;
+
+CREATE TABLE IF NOT EXISTS tokens_by_user (
+    user_id UUID,
+    token_hash TEXT,
+    name TEXT,
+    prefix TEXT,
+    created_at TIMESTAMP,
+    PRIMARY KEY ((user_id), token_hash)
+);

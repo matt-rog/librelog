@@ -55,6 +55,10 @@ func main() {
 
 	mux.HandleFunc("GET /api/datasets/{id}/logs", requireAuth(handleQueryLogs))
 
+	mux.HandleFunc("GET /api/tokens", requireAuth(handleListTokens))
+	mux.HandleFunc("POST /api/tokens", requireAuth(handleCreateToken))
+	mux.HandleFunc("DELETE /api/tokens/{hash}", requireAuth(handleDeleteToken))
+
 	dist, _ := fs.Sub(frontendFS, "frontend/dist")
 	fileServer := http.FileServer(http.FS(dist))
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

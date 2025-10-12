@@ -139,7 +139,7 @@ func handleLogin(w http.ResponseWriter, r *http.Request) {
 	token := hex.EncodeToString(tokenBytes)
 	tokenHash := hashSHA256(token)
 
-	if err := dbCreateToken(session, tokenHash, userID); err != nil {
+	if err := dbCreateToken(session, tokenHash, userID, "", ""); err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to create token")
 		return
 	}
@@ -154,7 +154,8 @@ func handleLogout(w http.ResponseWriter, r *http.Request) {
 	token := strings.TrimPrefix(auth, "Bearer ")
 	tokenHash := hashSHA256(token)
 
-	if err := dbDeleteToken(session, tokenHash); err != nil {
+	userID := getUserID(r)
+	if err := dbDeleteToken(session, tokenHash, userID); err != nil {
 		writeError(w, http.StatusInternalServerError, "failed to delete token")
 		return
 	}

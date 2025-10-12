@@ -57,10 +57,30 @@ func dbGetUser(session *gocql.Session, userID gocql.UUID) (User, error) {
 	return u, err
 }
 
-func dbCreateToken(session *gocql.Session, tokenHash string, userID gocql.UUID) error {
+type APIKey struct {
+	TokenHash string    `json:"token_hash"`
+	Name      string    `json:"name"`
+	Prefix    string    `json:"prefix"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+func dbCreateToken(session *gocql.Session, tokenHash string, userID gocql.UUID, name, prefix string) error {
+	now := time.Now()
+	if name != "" {
+		batch := session.NewBatch(gocql.LoggedBatch)
+		batch.Query(
+			`INSERT INTO tokens (token_hash, user_id, name, prefix, created_at) VALUES (?, ?, ?, ?, ?) USING TTL 0`,
+			tokenHash, userID, name, prefix, now,
+		)
+		batch.Query(
+			`INSERT INTO tokens_by_user (user_id, token_hash, name, prefix, created_at) VALUES (?, ?, ?, ?, ?)`,
+			userID, tokenHash, name, prefix, now,
+		)
+		return session.ExecuteBatch(batch)
+	}
 	return session.Query(
 		`INSERT INTO tokens (token_hash, user_id, created_at) VALUES (?, ?, ?)`,
-		tokenHash, userID, time.Now(),
+		tokenHash, userID, now,
 	).Exec()
 }
 
@@ -72,8 +92,27 @@ func dbGetUserByToken(session *gocql.Session, tokenHash string) (gocql.UUID, err
 	return userID, err
 }
 
-func dbDeleteToken(session *gocql.Session, tokenHash string) error {
-	return session.Query(`DELETE FROM tokens WHERE token_hash = ?`, tokenHash).Exec()
+func dbDeleteToken(session *gocql.Session, tokenHash string, userID gocql.UUID) error {
+	batch := session.NewBatch(gocql.LoggedBatch)
+	batch.Query(`DELETE FROM tokens WHERE token_hash = ?`, tokenHash)
+	batch.Query(`DELETE FROM tokens_by_user WHERE user_id = ? AND token_hash = ?`, userID, tokenHash)
+	return session.ExecuteBatch(batch)
+}
+
+func dbListTokens(session *gocql.Session, userID gocql.UUID) ([]APIKey, error) {
+	iter := session.Query(
+		`SELECT token_hash, name, prefix, created_at FROM tokens_by_user WHERE user_id = ?`, userID,
+	).Iter()
+
+	var keys []APIKey
+	var k APIKey
+	for iter.Scan(&k.TokenHash, &k.Name, &k.Prefix, &k.CreatedAt) {
+		keys = append(keys, k)
+	}
+	if err := iter.Close(); err != nil {
+		return nil, err
+	}
+	return keys, nil
 }
 
 func dbListDatasets(session *gocql.Session, userID gocql.UUID) ([]Dataset, error) {
