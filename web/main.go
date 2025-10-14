@@ -43,6 +43,9 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("GET /api/info", func(w http.ResponseWriter, r *http.Request) {
+		writeJSON(w, http.StatusOK, map[string]bool{"registration": registrationOpen()})
+	})
 	mux.HandleFunc("POST /api/signup", handleSignup)
 	mux.HandleFunc("POST /api/login", handleLogin)
 	mux.HandleFunc("POST /api/logout", requireAuth(handleLogout))

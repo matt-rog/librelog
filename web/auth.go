@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gocql/gocql"
@@ -61,7 +62,15 @@ func generateAccountNumber() (string, error) {
 	return fmt.Sprintf("%010d", num%10000000000), nil
 }
 
+func registrationOpen() bool {
+	return os.Getenv("PUBLIC_REGISTRATION") == "true"
+}
+
 func handleSignup(w http.ResponseWriter, r *http.Request) {
+	if !registrationOpen() {
+		writeError(w, http.StatusForbidden, "registration is closed")
+		return
+	}
 	var req struct {
 		Password string `json:"password"`
 		Name     string `json:"name"`

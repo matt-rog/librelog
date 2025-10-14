@@ -1,6 +1,6 @@
 <!-- AI-assisted code -->
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { api } from '../api.js'
 
@@ -9,6 +9,14 @@ const router = useRouter()
 if (api.getToken()) router.replace('/app')
 
 const mode = ref('none')
+const canRegister = ref(true)
+
+onMounted(async () => {
+  try {
+    const info = await api.get('/api/info')
+    canRegister.value = info.registration
+  } catch {}
+})
 const error = ref('')
 
 const loginForm = ref({ account_number: '', password: '' })
@@ -59,7 +67,7 @@ function toLogin() {
         Open source, self-hostable, privacy respecting.
       </p>
       <div class="hero-actions" v-if="mode === 'none'">
-        <button class="cta" @click="mode = 'signup'">Sign up</button>
+        <button v-if="canRegister" class="cta" @click="mode = 'signup'">Sign up</button>
         <button @click="mode = 'login'">Log in</button>
       </div>
     </section>
@@ -77,7 +85,7 @@ function toLogin() {
         <input v-model="loginForm.password" type="password" placeholder="Password" required />
         <p v-if="error" class="error">{{ error }}</p>
         <button type="submit" class="cta">Log in</button>
-        <button type="button" @click="mode = 'signup'">Need an account?</button>
+        <button v-if="canRegister" type="button" @click="mode = 'signup'">Need an account?</button>
       </form>
     </section>
 
