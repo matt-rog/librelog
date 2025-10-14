@@ -259,7 +259,7 @@ function copyToken(token) {
         <p>Select a logset to view its data, or create a new one.</p>
       </div>
 
-      <div v-else>
+      <div v-else class="logset-view">
         <header class="logset-header">
           <div v-if="!editing">
             <h2>{{ selected.name }}</h2>
@@ -290,34 +290,36 @@ function copyToken(token) {
           <button @click="exportLogs('csv')">export csv</button>
         </div>
 
-        <div v-if="logsLoading" class="empty-state"><p>Loading...</p></div>
+        <div class="log-scroll">
+          <div v-if="logsLoading" class="empty-state"><p>Loading...</p></div>
 
-        <div v-else-if="logs.length === 0" class="empty-state">
-          <p>No logs yet. Push some data to this logset to see it here.</p>
-        </div>
+          <div v-else-if="logs.length === 0" class="empty-state">
+            <p>No logs yet. Push some data to this logset to see it here.</p>
+          </div>
 
-        <table v-else-if="viewMode === 'table'">
-          <thead>
-            <tr>
-              <th>time</th>
-              <th v-for="col in columns" :key="col">{{ col }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="(entry, i) in logs" :key="i">
-              <td class="time-cell">{{ formatTime(entry.recv_time) }}</td>
-              <td v-for="col in columns" :key="col">{{ parseData(entry)[col] ?? '' }}</td>
-            </tr>
-          </tbody>
-        </table>
+          <table v-else-if="viewMode === 'table'">
+            <thead>
+              <tr>
+                <th>time</th>
+                <th v-for="col in columns" :key="col">{{ col }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(entry, i) in logs" :key="i">
+                <td class="time-cell">{{ formatTime(entry.recv_time) }}</td>
+                <td v-for="col in columns" :key="col">{{ parseData(entry)[col] ?? '' }}</td>
+              </tr>
+            </tbody>
+          </table>
 
-        <div v-else class="json-list">
-          <pre v-for="(entry, i) in logs" :key="i" class="json-entry"><span class="time-cell">{{ formatTime(entry.recv_time) }}</span>
+          <div v-else class="json-list">
+            <pre v-for="(entry, i) in logs" :key="i" class="json-entry"><span class="time-cell">{{ formatTime(entry.recv_time) }}</span>
 {{ JSON.stringify(JSON.parse(entry.data), null, 2) }}</pre>
-        </div>
+          </div>
 
-        <div v-if="logs.length > 0 && hasMore" class="load-more">
-          <button @click="loadMore">older entries &darr;</button>
+          <div v-if="logs.length > 0 && hasMore" class="load-more">
+            <button @click="loadMore">older entries &darr;</button>
+          </div>
         </div>
       </div>
     </main>
@@ -327,7 +329,7 @@ function copyToken(token) {
 <style scoped>
 .app-layout {
   display: flex;
-  min-height: 100vh;
+  height: 100vh;
 }
 
 .sidebar {
@@ -337,6 +339,7 @@ function copyToken(token) {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  overflow-y: auto;
 }
 .sidebar-head {
   display: flex;
@@ -409,7 +412,19 @@ function copyToken(token) {
 .content {
   flex: 1;
   padding: 2rem;
-  overflow-x: auto;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.logset-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+.log-scroll {
+  flex: 1;
+  overflow: auto;
 }
 
 .empty-state {
@@ -420,7 +435,8 @@ function copyToken(token) {
 }
 
 .logset-header {
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
+  flex-shrink: 0;
 }
 .logset-header h2 {
   font-weight: normal;
@@ -449,9 +465,10 @@ function copyToken(token) {
 .log-toolbar {
   display: flex;
   gap: 0.75rem;
-  margin-bottom: 1rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border);
+  margin-bottom: 0;
+  flex-shrink: 0;
 }
 .log-toolbar button {
   font-size: 0.85rem;
@@ -460,6 +477,12 @@ function copyToken(token) {
 }
 .log-toolbar button:hover {
   color: var(--accent);
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background: var(--bg);
+  z-index: 1;
 }
 .toolbar-sep {
   width: 1px;
