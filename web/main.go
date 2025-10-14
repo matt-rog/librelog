@@ -57,6 +57,7 @@ func main() {
 	mux.HandleFunc("DELETE /api/datasets/{id}", requireAuth(handleDeleteDataset))
 
 	mux.HandleFunc("GET /api/datasets/{id}/logs", requireAuth(handleQueryLogs))
+	mux.HandleFunc("GET /api/datasets/{id}/export", requireAuth(handleExportLogs))
 
 	mux.HandleFunc("GET /api/tokens", requireAuth(handleListTokens))
 	mux.HandleFunc("POST /api/tokens", requireAuth(handleCreateToken))

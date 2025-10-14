@@ -123,6 +123,19 @@ function formatTime(t) {
   return new Date(t).toLocaleString()
 }
 
+async function exportLogs(format = 'json') {
+  if (!selected.value) return
+  const res = await fetch(`/api/datasets/${selected.value.log_id}/export?format=${format}`, {
+    headers: { 'Authorization': `Bearer ${api.getToken()}` }
+  })
+  const blob = await res.blob()
+  const a = document.createElement('a')
+  a.href = URL.createObjectURL(blob)
+  a.download = `${selected.value.name}.${format}`
+  a.click()
+  URL.revokeObjectURL(a.href)
+}
+
 function showKeys() {
   view.value = 'keys'
   selected.value = null
@@ -270,8 +283,11 @@ function copyToken(token) {
         <div class="log-toolbar">
           <button @click="loadLogs">refresh</button>
           <button @click="viewMode = viewMode === 'table' ? 'json' : 'table'">
-            {{ viewMode === 'table' ? 'json' : 'table' }}
+            {{ viewMode === 'table' ? 'view json' : 'view table' }}
           </button>
+          <span class="toolbar-sep"></span>
+          <button @click="exportLogs('json')">export json</button>
+          <button @click="exportLogs('csv')">export csv</button>
         </div>
 
         <div v-if="logsLoading" class="empty-state"><p>Loading...</p></div>
@@ -444,6 +460,11 @@ function copyToken(token) {
 }
 .log-toolbar button:hover {
   color: var(--accent);
+}
+.toolbar-sep {
+  width: 1px;
+  background: var(--border);
+  align-self: stretch;
 }
 
 .time-cell {
