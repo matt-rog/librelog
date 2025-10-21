@@ -48,7 +48,9 @@ services:
       - librelog-net
 
   web:
-    build: web
+    build:
+      context: .
+      dockerfile: web/Dockerfile
     container_name: librelog-web
     ports:
       - "8080:8080"
