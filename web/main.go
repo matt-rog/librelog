@@ -50,14 +50,14 @@ func main() {
 	mux.HandleFunc("POST /api/login", handleLogin)
 	mux.HandleFunc("POST /api/logout", requireAuth(handleLogout))
 
-	mux.HandleFunc("GET /api/datasets", requireAuth(handleListDatasets))
-	mux.HandleFunc("POST /api/datasets", requireAuth(handleCreateDataset))
-	mux.HandleFunc("GET /api/datasets/{id}", requireAuth(handleGetDataset))
-	mux.HandleFunc("PUT /api/datasets/{id}", requireAuth(handleUpdateDataset))
-	mux.HandleFunc("DELETE /api/datasets/{id}", requireAuth(handleDeleteDataset))
+	mux.HandleFunc("GET /api/logsets", requireAuth(handleListLogsets))
+	mux.HandleFunc("POST /api/logsets", requireAuth(handleCreateLogset))
+	mux.HandleFunc("GET /api/logsets/{id}", requireAuth(handleGetLogset))
+	mux.HandleFunc("PUT /api/logsets/{id}", requireAuth(handleUpdateLogset))
+	mux.HandleFunc("DELETE /api/logsets/{id}", requireAuth(handleDeleteLogset))
 
-	mux.HandleFunc("GET /api/datasets/{id}/logs", requireAuth(handleQueryLogs))
-	mux.HandleFunc("GET /api/datasets/{id}/export", requireAuth(handleExportLogs))
+	mux.HandleFunc("GET /api/logsets/{id}/logs", requireAuth(handleQueryLogs))
+	mux.HandleFunc("GET /api/logsets/{id}/export", requireAuth(handleExportLogs))
 
 	mux.HandleFunc("GET /api/tokens", requireAuth(handleListTokens))
 	mux.HandleFunc("POST /api/tokens", requireAuth(handleCreateToken))

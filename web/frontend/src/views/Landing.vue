@@ -59,7 +59,7 @@ function toLogin() {
         <img src="/logo.png" alt="LibreLog" class="hero-logo" />
         <h1>LibreLog</h1>
       </div>
-      <p class="tagline">A place to keep track of things.</p>
+      <p class="tagline">A place to log things.</p>
       <p class="sub">
         Most apps that hold your personal data don't let you really own it.
         LibreLog is a log store that stays out of your way. Send data in,
@@ -114,6 +114,7 @@ function toLogin() {
           <p>Query your logs through the API. Build charts, run stats, feed it into other software.</p>
         </div>
       </div>
+      <router-link to="/docs" class="docs-link">API docs</router-link>
     </section>
   </div>
 </template>
@@ -207,6 +208,11 @@ function toLogin() {
 }
 .about p {
   color: var(--muted);
+  font-size: 0.9rem;
+}
+.docs-link {
+  display: inline-block;
+  margin-top: 1.5rem;
   font-size: 0.9rem;
 }
 </style>

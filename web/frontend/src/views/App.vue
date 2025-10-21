@@ -51,13 +51,13 @@ watch(selected, async (s) => {
 })
 
 async function loadLogsets() {
-  logsets.value = await api.get('/api/datasets')
+  logsets.value = await api.get('/api/logsets')
 }
 
 async function loadLogs() {
   if (!selected.value) return
   logsLoading.value = true
-  const data = await api.get(`/api/datasets/${selected.value.log_id}/logs?limit=${LIMIT}`)
+  const data = await api.get(`/api/logsets/${selected.value.log_id}/logs?limit=${LIMIT}`)
   logs.value = data
   lastFetchCount.value = data.length
   logsLoading.value = false
@@ -66,7 +66,7 @@ async function loadLogs() {
 async function loadMore() {
   if (!selected.value || logs.value.length === 0) return
   const last = logs.value[logs.value.length - 1].recv_time
-  const more = await api.get(`/api/datasets/${selected.value.log_id}/logs?limit=${LIMIT}&before=${encodeURIComponent(last)}`)
+  const more = await api.get(`/api/logsets/${selected.value.log_id}/logs?limit=${LIMIT}&before=${encodeURIComponent(last)}`)
   logs.value = [...logs.value, ...more]
   lastFetchCount.value = more.length
 }
@@ -74,7 +74,7 @@ async function loadMore() {
 async function createLogset() {
   error.value = ''
   try {
-    const created = await api.post('/api/datasets', newForm.value)
+    const created = await api.post('/api/logsets', newForm.value)
     newForm.value = { name: '', description: '' }
     showNewForm.value = false
     await loadLogsets()
@@ -92,7 +92,7 @@ function startEdit() {
 async function saveEdit() {
   error.value = ''
   try {
-    const updated = await api.put(`/api/datasets/${selected.value.log_id}`, editForm.value)
+    const updated = await api.put(`/api/logsets/${selected.value.log_id}`, editForm.value)
     selected.value = updated
     editing.value = false
     await loadLogsets()
@@ -103,7 +103,7 @@ async function saveEdit() {
 
 async function deleteLogset() {
   if (!confirm(`Delete "${selected.value.name}"?`)) return
-  await api.del(`/api/datasets/${selected.value.log_id}`)
+  await api.del(`/api/logsets/${selected.value.log_id}`)
   selected.value = null
   logs.value = []
   await loadLogsets()
@@ -125,7 +125,7 @@ function formatTime(t) {
 
 async function exportLogs(format = 'json') {
   if (!selected.value) return
-  const res = await fetch(`/api/datasets/${selected.value.log_id}/export?format=${format}`, {
+  const res = await fetch(`/api/logsets/${selected.value.log_id}/export?format=${format}`, {
     headers: { 'Authorization': `Bearer ${api.getToken()}` }
   })
   const blob = await res.blob()
@@ -202,6 +202,7 @@ function copyToken(token) {
 
       <div class="sidebar-footer">
         <button class="nav-item" :class="{ active: view === 'keys' }" @click="showKeys">api keys</button>
+        <router-link to="/docs" class="nav-item">docs</router-link>
       </div>
     </aside>
 

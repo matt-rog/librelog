@@ -17,8 +17,8 @@ func handleQueryLogs(w http.ResponseWriter, r *http.Request) {
 	userID := getUserID(r)
 	logID := r.PathValue("id")
 
-	if _, err := dbGetDataset(session, userID, logID); err != nil {
-		writeError(w, http.StatusNotFound, "dataset not found")
+	if _, err := dbGetLogset(session, userID, logID); err != nil {
+		writeError(w, http.StatusNotFound, "logset not found")
 		return
 	}
 
@@ -83,9 +83,9 @@ func handleExportLogs(w http.ResponseWriter, r *http.Request) {
 	userID := getUserID(r)
 	logID := r.PathValue("id")
 
-	ds, err := dbGetDataset(session, userID, logID)
+	ds, err := dbGetLogset(session, userID, logID)
 	if err != nil {
-		writeError(w, http.StatusNotFound, "dataset not found")
+		writeError(w, http.StatusNotFound, "logset not found")
 		return
 	}
 

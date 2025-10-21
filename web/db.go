@@ -7,7 +7,7 @@ import (
 	"github.com/gocql/gocql"
 )
 
-type Dataset struct {
+type Logset struct {
 	LogID       string `json:"log_id"`
 	UserID      string `json:"user_id"`
 	Name        string `json:"name"`
@@ -115,25 +115,25 @@ func dbListTokens(session *gocql.Session, userID gocql.UUID) ([]APIKey, error) {
 	return keys, nil
 }
 
-func dbListDatasets(session *gocql.Session, userID gocql.UUID) ([]Dataset, error) {
+func dbListLogsets(session *gocql.Session, userID gocql.UUID) ([]Logset, error) {
 	iter := session.Query(
 		`SELECT log_id, name, description FROM logs_meta WHERE user_id = ?`, userID,
 	).Iter()
 
-	var datasets []Dataset
-	var d Dataset
+	var logsets []Logset
+	var d Logset
 	for iter.Scan(&d.LogID, &d.Name, &d.Description) {
 		d.UserID = userID.String()
-		datasets = append(datasets, d)
+		logsets = append(logsets, d)
 	}
 	if err := iter.Close(); err != nil {
 		return nil, err
 	}
-	return datasets, nil
+	return logsets, nil
 }
 
-func dbGetDataset(session *gocql.Session, userID gocql.UUID, logID string) (Dataset, error) {
-	var d Dataset
+func dbGetLogset(session *gocql.Session, userID gocql.UUID, logID string) (Logset, error) {
+	var d Logset
 	err := session.Query(
 		`SELECT log_id, name, description, data FROM logs_meta WHERE user_id = ? AND log_id = ?`,
 		userID, logID,
@@ -142,21 +142,21 @@ func dbGetDataset(session *gocql.Session, userID gocql.UUID, logID string) (Data
 	return d, err
 }
 
-func dbCreateDataset(session *gocql.Session, userID gocql.UUID, logID, name, description string) error {
+func dbCreateLogset(session *gocql.Session, userID gocql.UUID, logID, name, description string) error {
 	return session.Query(
 		`INSERT INTO logs_meta (user_id, log_id, name, description) VALUES (?, ?, ?, ?)`,
 		userID, logID, name, description,
 	).Exec()
 }
 
-func dbUpdateDataset(session *gocql.Session, userID gocql.UUID, logID, name, description string) error {
+func dbUpdateLogset(session *gocql.Session, userID gocql.UUID, logID, name, description string) error {
 	return session.Query(
 		`UPDATE logs_meta SET name = ?, description = ? WHERE user_id = ? AND log_id = ?`,
 		name, description, userID, logID,
 	).Exec()
 }
 
-func dbDeleteDataset(session *gocql.Session, userID gocql.UUID, logID string) error {
+func dbDeleteLogset(session *gocql.Session, userID gocql.UUID, logID string) error {
 	return session.Query(
 		`DELETE FROM logs_meta WHERE user_id = ? AND log_id = ?`, userID, logID,
 	).Exec()
