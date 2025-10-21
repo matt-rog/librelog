@@ -1,6 +1,14 @@
 ![LibreLog](docs/librelog.png)
 
-Most apps that hold your personal data don't let you really own it. LibreLog is an open-source, self-hostable log store. Send data in, pull it out, do whatever you want with it.
+Most software that tracks your data doesn't really let you own it. You can't easily export it, query it programmatically, or move it somewhere else. LibreLog is an open-source, self-hostable log store that aims to accept data from anywhere and let you use it however you want.
+
+## Getting Started
+
+When you sign up, you get a randomly generated account number instead of using an email or phone number. **Store it somewhere safe** because it's the only time you'll see it, and your code + your password is the only way to log in.
+
+Once logged in, create a logset (a named collection of log entries) and start pushing data to it. To send data from external apps or scripts, create an API key from the keys panel. API keys won't expire until you revoke them.
+
+See the [API reference](docs/api.md) for details on ingesting and querying data.
 
 ## Install
 

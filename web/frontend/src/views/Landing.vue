@@ -61,10 +61,11 @@ function toLogin() {
       </div>
       <p class="tagline">A place to log things.</p>
       <p class="sub">
-        Most apps that hold your personal data don't let you really own it.
-        LibreLog is a log store that stays out of your way. Send data in,
-        pull it out, do whatever you want with it.
-        Open source, self-hostable, privacy respecting.
+        Most software that tracks your data doesn't really let you own it.
+        You can't easily export it, query it programmatically, or move it
+        somewhere else. LibreLog is an open-source, self-hostable log store
+        that aims to accept data from anywhere and let you use it however
+        you want.
       </p>
       <div class="hero-actions" v-if="mode === 'none'">
         <button v-if="canRegister" class="cta" @click="mode = 'signup'">Sign up</button>
